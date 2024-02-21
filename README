@@ -1,0 +1,24 @@
+C Lib Template
+==============
+
+C library template creates a static lib and companion
+program(s). Includes test program and man page templates too.
+
+Nothing fancy. No dependencies. Builds with make.
+
+Usage
+=====
+
+Verbose build
+
+    $ make V=1
+
+View man pages
+
+    $ man -M . libtemplate
+    $ man -M . templatectl
+
+Install to a different PREFIX (default is $HOME)
+
+    $ make PREFIX=/usr/local
+    $ make PREFIX=/usr/local install
