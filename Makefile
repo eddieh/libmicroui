@@ -1,5 +1,5 @@
-LIBNAME=template
-LIBVER=0.0.1
+LIBNAME=microui
+LIBVER=2.0.1
 
 CFLAGS ?=
 LDFLAGS ?=
@@ -22,24 +22,25 @@ cflags += -Wall -Wwrite-strings
 
 LIB_OBJS :=
 LIB_OBJS += version.o
+LIB_OBJS += microui.o
 
 PROGRAMS :=
-PROGRAMS += templatectl
+PROGRAMS += mudemo
 PROGRAMS += test
 
 INST_FLAGS = -D
 
 INST_PROGRAMS :=
-INST_PROGRAMS += templatectl
+INST_PROGRAMS += mudemo
 
 INST_MAN1 :=
-INST_MAN1 += templatectl.1
+INST_MAN1 += mudemo.1
 
 INST_MAN3 :=
-INST_MAN3 += libtemplate.3
+INST_MAN3 += libmicroui.3
 
 INST_HEADERS :=
-INST_HEADERS += template.h
+INST_HEADERS += microui.h
 
 INST_LIBS :=
 INST_LIBS += lib$(LIBNAME).a
@@ -61,6 +62,7 @@ ifeq ($(OSNAME),Darwin)
 #MACSDK = /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
 MACSDK = $(shell xcodebuild -version -sdk macosx Path)
 LDFLAGS += -lSystem
+LDFLAGS += -framework OpenGL
 LDFLAGS += -syslibroot $(MACSDK)
 INST_FLAGS =
 INST_DIRS = $(bindir) $(man1dir) $(man3dir) $(incdir) $(libdir)
@@ -69,17 +71,17 @@ $(INST_DIRS):
 	$(Q)install -d $@
 endif
 
-# HAVE_DEP := $(shell $(PKG_CONFIG) --exists dep-1.0 2>/dev/null && echo 'yes')
-# ifeq ($(HAVE_DEP),yes)
-# EXTRA_OBJS += extra.o
-# PROGRAMS += progdep
-# INST_MAN1 += progdep.1
-# progdep-cflags := $(shell $(PKG_CONFIG) --cflags dep-1.0)
-# progdep-ldflags :=
-# progdep-ldlibs := $(shell $(PKG_CONFIG) --libs dep-1.0)
-# else
-# $(warning Your system does not have dep, skipping progdep)
-# endif
+HAVE_SDL := $(shell $(PKG_CONFIG) --exists sdl2 2>/dev/null && echo 'yes')
+ifeq ($(HAVE_SDL),yes)
+LIB_OBJS += sdl.o
+sdl-cflags := $(shell $(PKG_CONFIG) --cflags sdl2)
+sdl-ldflags :=
+sdl-ldlibs :=
+CFLAGS += -DUSING_SDL
+LDLIBS := $(shell $(PKG_CONFIG) --libs sdl2)
+else
+$(error SDL2 is required)
+endif
 
 LIBS := lib$(LIBNAME).a
 OBJS := $(LIB_OBJS) $(EXTRA_OBJS) $(PROGRAMS:%=%.o)
@@ -107,7 +109,7 @@ cflags   += $($(*)-cflags) $(CPPFLAGS) $(CFLAGS)
 VERSION:=$(shell git describe --dirty 2>/dev/null || echo '$(LIBVER)')
 version.o: version.h
 version.h: FORCE
-	@echo '#define TEMPLATE_VERSION "$(VERSION)"' > version.h.tmp
+	@echo '#define MICROUI_VERSION "$(VERSION)"' > version.h.tmp
 	@if cmp -s version.h version.h.tmp; then \
 		rm version.h.tmp; \
 	else \

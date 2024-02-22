@@ -1,9 +1,9 @@
 #include "version.h"
 
-static const char *version = TEMPLATE_VERSION;
+static const char *version = MICROUI_VERSION;
 
 const char *
-template_version()
+mu_version()
 {
     return version;
 }
